@@ -4,8 +4,10 @@ import { resolve } from "path";
 import tailwindcss from "tailwindcss";
 import { defineConfig } from "vitest/config";
 
-// https://vitejs.dev/config/
+const isGithubPages = process.env.GITHUB_ACTIONS === "true";
+
 export default defineConfig({
+  base: isGithubPages ? "/Agent/" : "./",
   plugins: [
     react(),
     tailwindcss(),
@@ -16,8 +18,6 @@ export default defineConfig({
   ],
   build: {
     sourcemap: true,
-
-    // Change the output .js filename to not include a hash
     rollupOptions: {
       input: {
         index: resolve(__dirname, "index.html"),
@@ -36,39 +36,6 @@ export default defineConfig({
       methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
       allowedHeaders: ["*", "Content-Type", "Authorization"],
       credentials: true,
-    },
-  },
-  test: {
-    globals: true,
-    environment: "jsdom",
-    setupFiles: "./src/util/test/setupTests.ts",
-    onConsoleLog(log, type) {
-      if (type === "stderr") {
-        if (
-          [
-            "contentEditable",
-            "An update to Chat inside a test was not wrapped in act",
-            "An update to TipTapEditor inside a test was not wrapped in act",
-            "An update to ThinkingIndicator inside a test was not wrapped in act",
-            "The current testing environment is not configured to support act",
-            "target.getClientRects is not a function",
-            "prosemirror",
-          ].some((text) => log.includes(text))
-        ) {
-          return false;
-        }
-      }
-      return true;
-    },
-    onUnhandledRejection(err) {
-      // Suppress ProseMirror DOM errors in test environment
-      if (
-        err.message?.includes("getClientRects") ||
-        err.message?.includes("prosemirror")
-      ) {
-        return false;
-      }
-      return true;
     },
   },
 });
