@@ -1,11 +1,16 @@
 name: Deploy GUI to GitHub Pages
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - master
+      - "dependabot/npm_and_yarn/core/basic-ftp-5.3.1"
+
 permissions:
   contents: read
   pages: write
   id-token: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,10 +25,11 @@ jobs:
           npm install
           npm run build
         env:
-          SENTRY_SUPPRESS_UPLOADING_SOURCEMAPS: "true"   # build needs no Sentry account
+          SENTRY_SUPPRESS_UPLOADING_SOURCEMAPS: "true"
       - uses: actions/upload-pages-artifact@v3
         with:
           path: gui/dist
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
